@@ -26,7 +26,8 @@ app.use("/api/tasks", tasksRouter);
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = Number(process.env.PORT) || 5000;
+const PORT = process.env.PORT || 3000;
+
 
 await connectDb(process.env.MONGODB_URI);
 
