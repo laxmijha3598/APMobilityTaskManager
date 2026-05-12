@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import validator from "validator";
 import { User } from "../models/User.js";
-import { signAccessToken } from "../utils/auth.js";
 
 function publicUser(u) {
   return { _id: u._id, name: u.name, email: u.email };
@@ -32,8 +31,11 @@ export async function register(req, res) {
     passwordHash,
   });
 
-  const token = signAccessToken({ userId: user._id });
-  res.status(201).json({ data: { token, user: publicUser(user) } });
+  res.status(201).json({
+  data: {
+    user: publicUser(user),
+  },
+});
 }
 
 export async function login(req, res) {
@@ -57,8 +59,11 @@ export async function login(req, res) {
     return res.status(401).json({ error: { message: "Invalid credentials" } });
   }
 
-  const token = signAccessToken({ userId: user._id });
-  res.json({ data: { token, user: publicUser(user) } });
+ res.json({
+  data: {
+    user: publicUser(user),
+  },
+});
 }
 
 export async function me(req, res) {
