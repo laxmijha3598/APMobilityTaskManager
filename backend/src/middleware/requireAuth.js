@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { verifyAccessToken } from "../utils/auth.js";
+
 import { User } from "../models/User.js";
 
 export async function requireAuth(req, res, next) {
@@ -10,7 +10,7 @@ export async function requireAuth(req, res, next) {
       return res.status(401).json({ error: { message: "Unauthorized" } });
     }
 
-    const payload = verifyAccessToken(token);
+
     const userId = payload?.sub;
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(401).json({ error: { message: "Unauthorized" } });
