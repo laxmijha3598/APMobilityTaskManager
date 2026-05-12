@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createTask, deleteTask, fetchTasks, updateTask } from "./api/tasks";
-import { login, me, register } from "./api/auth";
 
 function formatDate(iso) {
   try {
@@ -42,117 +41,6 @@ function Modal({ title, children, onClose }) {
         </div>
         <div className="modalBody">{children}</div>
       </div>
-    </div>
-  );
-}
-
-function AuthCard({ mode, setMode, onAuthed }) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-
-  const isRegister = mode === "register";
-  const canSubmit =
-    email.trim().length > 0 && password.length >= 6 && (isRegister ? true : true);
-
-  async function submit() {
-    setBusy(true);
-    setError("");
-    try {
-      const data = isRegister
-        ? await register({ name, email, password })
-        : await login({ email, password });
-      localStorage.setItem("access_token", data.token);
-      onAuthed(data.user);
-    } catch (e) {
-      setError(e?.response?.data?.error?.message || e.message || "Auth failed");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <div className="card authCard">
-      <div className="authHeader">
-        <div>
-          <div className="authTitle">Welcome</div>
-          <div className="authSubtitle">Login or create an account to manage your tasks.</div>
-        </div>
-        <div className="segmented">
-          <button
-            className={`segBtn ${mode === "login" ? "active" : ""}`}
-            onClick={() => {
-              setMode("login");
-              setError("");
-            }}
-            type="button"
-          >
-            Login
-          </button>
-          <button
-            className={`segBtn ${mode === "register" ? "active" : ""}`}
-            onClick={() => {
-              setMode("register");
-              setError("");
-            }}
-            type="button"
-          >
-            Register
-          </button>
-        </div>
-      </div>
-
-      <form
-        className="form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (!canSubmit || busy) return;
-          submit();
-        }}
-      >
-        {isRegister ? (
-          <label className="label">
-            <div className="labelText">Name (optional)</div>
-            <TextInput
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your name"
-              maxLength={80}
-              autoFocus
-            />
-          </label>
-        ) : null}
-
-        <label className="label">
-          <div className="labelText">Email</div>
-          <TextInput
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            autoFocus={!isRegister}
-          />
-        </label>
-
-        <label className="label">
-          <div className="labelText">Password (min 6 chars)</div>
-          <TextInput
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            type="password"
-          />
-        </label>
-
-        {error ? <div className="inlineError">{error}</div> : null}
-
-        <div className="row">
-          <Button type="submit" disabled={busy || !canSubmit}>
-            {busy ? "Please wait…" : isRegister ? "Create account" : "Login"}
-          </Button>
-        </div>
-      </form>
     </div>
   );
 }
@@ -207,13 +95,11 @@ function TaskForm({ initial, onCancel, onSubmit, submitting }) {
 }
 
 export default function App() {
-  const [user, setUser] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [status, setStatus] = useState({ loading: true, error: "" });
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState(null);
   const [busyId, setBusyId] = useState("");
-  const [authMode, setAuthMode] = useState("login");
 
   const stats = useMemo(() => {
     const total = tasks.length;
@@ -229,13 +115,6 @@ export default function App() {
       setStatus({ loading: false, error: "" });
     } catch (e) {
       const message = e?.response?.data?.error?.message || e.message || "Failed to load";
-      if (e?.response?.status === 401) {
-        localStorage.removeItem("access_token");
-        setUser(null);
-        setTasks([]);
-        setStatus({ loading: false, error: "Session expired. Please login again." });
-        return;
-      }
       setStatus({
         loading: false,
         error: message,
@@ -244,25 +123,7 @@ export default function App() {
   }
 
   useEffect(() => {
-    async function boot() {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        setStatus({ loading: false, error: "" });
-        return;
-      }
-      try {
-        const u = await me();
-        setUser(u);
-        await load();
-      } catch (_e) {
-        localStorage.removeItem("access_token");
-        setUser(null);
-        setTasks([]);
-        setStatus({ loading: false, error: "" });
-      }
-    }
-
-    boot();
+    load();
   }, []);
 
   async function onCreate(payload) {
@@ -318,40 +179,6 @@ export default function App() {
     }
   }
 
-  function logout() {
-    localStorage.removeItem("access_token");
-    setUser(null);
-    setTasks([]);
-    setCreating(false);
-    setEditing(null);
-    setStatus({ loading: false, error: "" });
-  }
-
-  if (!user) {
-    return (
-      <div className="page">
-        <header className="header">
-          <div>
-            <div className="title">Task Manager</div>
-            <div className="subtitle">Sign in to manage your personal task list.</div>
-          </div>
-        </header>
-
-        <main className="main">
-          <AuthCard
-            mode={authMode}
-            setMode={setAuthMode}
-            onAuthed={(u) => {
-              setUser(u);
-              setStatus({ loading: true, error: "" });
-              load();
-            }}
-          />
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="page">
       <header className="header">
@@ -363,12 +190,6 @@ export default function App() {
         </div>
         <div className="headerActions">
           <Button onClick={() => setCreating(true)}>+ Add Task</Button>
-          <div className="userPill" title={user.email}>
-            {user.name ? user.name : user.email}
-          </div>
-          <Button variant="ghost" onClick={logout}>
-            Logout
-          </Button>
         </div>
       </header>
 

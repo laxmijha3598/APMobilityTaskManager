@@ -11,7 +11,6 @@ A responsive Task Management web application built with the **MERN stack**:
 - Mark tasks as completed / uncompleted
 - View all tasks in a clean, responsive UI
 - Fetch and store data using REST APIs
-- User Registration / Login / Logout (JWT auth)
 
 ## Tech Stack
 - Backend: Express, Mongoose, CORS, dotenv
@@ -40,8 +39,6 @@ Update `backend/.env`:
 ```
 PORT=5000
 MONGODB_URI=mongodb://127.0.0.1:27017/task_manager
-CLIENT_ORIGIN=http://localhost:5173
-JWT_SECRET=replace_with_a_long_random_secret
 ```
 
 Run the API:
@@ -71,12 +68,7 @@ npm run dev
 Open `http://localhost:5173`.
 
 ## API Endpoints
-Auth:
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `GET /api/auth/me` (requires `Authorization: Bearer <token>`)
-
-Tasks (requires `Authorization: Bearer <token>`):
+Tasks:
 - `GET /api/tasks` - list tasks (newest first)
 - `POST /api/tasks` - create task
 - `PATCH /api/tasks/:id` - update title/description/completed
@@ -95,7 +87,7 @@ Tasks (requires `Authorization: Bearer <token>`):
 ```
 
 ## Assumptions
-- JWT authentication is used (no refresh tokens) for simplicity.
+- No authentication (single-user task list).
 - Minimal required fields: `title` is required; `description` optional.
 
 ## Additional Notes / Extras

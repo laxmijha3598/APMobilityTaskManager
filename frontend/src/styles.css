@@ -138,42 +138,6 @@ body {
   background: rgba(0, 0, 0, 0.12);
 }
 
-.segBtn {
-  border: none;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.8);
-  cursor: pointer;
-  padding: 10px 12px;
-  font-weight: 700;
-}
-
-.segBtn.active {
-  background: rgba(110, 168, 254, 0.22);
-  color: rgba(255, 255, 255, 0.95);
-}
-
-.inlineError {
-  border: 1px solid rgba(255, 107, 107, 0.35);
-  background: rgba(255, 107, 107, 0.12);
-  color: rgba(255, 255, 255, 0.88);
-  padding: 10px 12px;
-  border-radius: 12px;
-  font-size: 13px;
-}
-
-.userPill {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
-  padding: 8px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.82);
-  max-width: 240px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .taskCard {
   padding: 14px;
   display: flex;

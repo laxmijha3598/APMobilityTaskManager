@@ -6,9 +6,7 @@ function isValidObjectId(id) {
 }
 
 export async function listTasks(_req, res) {
-  const tasks = await Task.find({ userId: _req.user._id })
-    .sort({ createdAt: -1 })
-    .lean();
+  const tasks = await Task.find().sort({ createdAt: -1 }).lean();
   res.json({ data: tasks });
 }
 
@@ -20,7 +18,6 @@ export async function createTask(req, res) {
   }
 
   const task = await Task.create({
-    userId: req.user._id,
     title: title.trim(),
     description: typeof description === "string" ? description.trim() : "",
   });
@@ -51,7 +48,7 @@ export async function updateTask(req, res) {
     return res.status(400).json({ error: { message: "Title cannot be empty" } });
   }
 
-  const task = await Task.findOneAndUpdate({ _id: id, userId: req.user._id }, update, {
+  const task = await Task.findByIdAndUpdate(id, update, {
     new: true,
     runValidators: true,
   });
@@ -69,7 +66,7 @@ export async function deleteTask(req, res) {
     return res.status(400).json({ error: { message: "Invalid task id" } });
   }
 
-  const task = await Task.findOneAndDelete({ _id: id, userId: req.user._id });
+  const task = await Task.findByIdAndDelete(id);
   if (!task) {
     return res.status(404).json({ error: { message: "Task not found" } });
   }
