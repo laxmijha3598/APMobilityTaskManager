@@ -6,6 +6,8 @@ export async function connectDb(mongoUri) {
   }
 
   mongoose.set("strictQuery", true);
-await mongoose.connect(mongoUri);
-}
 
+  await mongoose.connect(mongoUri);
+
+  //console.log("MongoDB connected");
+}
