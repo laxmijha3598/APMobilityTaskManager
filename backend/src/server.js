@@ -31,12 +31,19 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 3000;
 
 
-await connectDb(process.env.MONGODB_URI);
+connectDb(process.env.MONGODB_URI)
+  .then(() => {
+    console.log("MongoDB Connected");
+
+    app.listen(PORT, () => {
+      console.log(`API listening on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Database connection failed:");
+    console.error(err);
+  });
 
 
-app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-   
-  console.log(`API listening on http://localhost:${PORT}`);
-});
+
 
